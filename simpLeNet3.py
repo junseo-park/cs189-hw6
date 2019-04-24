@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 import time
 import datetime
 import pandas as pd
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib
 from models import *
 
 ####################### SYS ARGS #######################
@@ -54,12 +57,17 @@ print('Device:', device)
 #cudnn.benchmark = True
 
 ####################### PARAMS #######################
-params = {'batch_size': 64,
+params = {'batch_size': 32,
           'shuffle': True,
           'num_workers': 4}
-num_epochs = 25
+num_epochs = 15
 learning_rate = 1e-5
-weight_decay = 0.8
+weight_decay = 1e-4
+
+####################### MODEL #######################
+model = SimpLeNet3().to(device)
+criterion =  nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 ####################### DATASETS #######################
 if is_key_frame:
@@ -93,11 +101,6 @@ val_dataset = Mds189(label_file_val,loader=default_loader,transform=transforms.C
                                            ]))
 val_loader = data.DataLoader(val_dataset, **params)
 
-
-####################### MODEL #######################
-model = SimpLeNet().to(device)
-criterion =  nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 ####################### TRAIN/VAL #######################
 start = time.time()
@@ -182,19 +185,7 @@ gt = [p.cpu().numpy().tolist() for p in groundtruth_list]
 
 # TODO: use pl and gt to produce your confusion matrices
 label_map = ['reach','squat','inline','lunge','hamstrings','stretch','deadbug','pushup']
-def plot_confusion_matrix(y_test, y_pred):
-    plt.figure(figsize=(10, 7))
-    cm = confusion_matrix(y_test, y_pred)
-    sns.heatmap(cm, annot=True, cbar=False, cmap=matplotlib.cm.get_cmap('gist_yarg'))
-    plt.ylabel('Observed')
-    plt.xlabel('Predicted')
-    plt.xticks(cm.shape[1], label_map)
-    plt.yticks(cm.shape[0], label_map, rotation='horizontal')
-    ax = plt.gca()
-    ax.xaxis.set_ticks_position('top')
-    ax.xaxis.set_label_position('top')
-    plt.savefig('img/' + filestem + '_' + data_type + '_confmat.png')
-plot_confusion_matrix(gt, pl)
+plot_confusion_matrix(gt, pl, label_map, filestem, data_type)
 
 
 # view the per-movement accuracy

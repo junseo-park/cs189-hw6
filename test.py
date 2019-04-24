@@ -21,9 +21,9 @@ import sys
 # {filestem}
 args = sys.argv
 print(args)
-filestem = args[1]
+filestem, data_type = args[1:]
 is_key_frame = False
-model_to_load = 'models/' + filestem + '.ckpt'
+model_to_load = 'models/' + filestem + '_' + data_type + '.ckpt'
 
 ####################### CUDA for PyTorch #######################
 use_cuda = torch.cuda.is_available()
@@ -32,7 +32,7 @@ print('Device:', device)
 #cudnn.benchmark = True
 
 ############### LOAD MODEL ###############
-model = SimpLeNet().to(device)
+model = AlexNet().to(device)
 model.load_state_dict(torch.load(model_to_load))
 
 
