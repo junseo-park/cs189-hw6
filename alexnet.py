@@ -60,7 +60,7 @@ print('Device:', device)
 params = {'batch_size': 32,
           'shuffle': True,
           'num_workers': 4}
-num_epochs = 20
+num_epochs = 10
 learning_rate = 1e-5
 weight_decay = 1e-4
 
